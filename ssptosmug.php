@@ -25,15 +25,6 @@ CREATE TABLE `sspexport` (
 `currentphotos` int( 11 ) NOT NULL ,
 `status` varchar( 255 ) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
-
-CREATE TABLE `mcexport` (
-`xmlpath` varchar( 255 ) NOT NULL ,
-`smugid` int( 11 ) NOT NULL ,
-`smugkey` varchar( 255 ) NOT NULL ,
-`totalphotos` int( 11 ) NOT NULL ,
-`currentphotos` int( 11 ) NOT NULL ,
-`status` varchar( 255 ) NOT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 */
 $thispage = $_SERVER['REQUEST_URI'];
 $refreshtime = "30";
