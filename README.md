@@ -7,3 +7,6 @@ This script requires to environment variables (in case it's not obvious, the two
   export API_KEY='hosted-sdfasdfasdfasdfasdfasd'
   export API_PATH='something.slideshowpro.com'
 ```
+
+### Things That Will Cause Errors Unless You Address Them Head-On
+* You'll need to create a dir named `smugcache`

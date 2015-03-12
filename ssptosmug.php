@@ -26,7 +26,6 @@ $refreshtime = "30";
 header("Refresh: $refreshtime; url=$thispage");
 
 $dir = "/SSPXML/";
-//$dir = '/home/joe/Rss_BREF';
 
 //mysql vars
 $username="root";
@@ -88,7 +87,7 @@ function mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $albumcatID, $smugObj, $albumLo
 function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
 
 	$resumequery = "SELECT * FROM mcexport WHERE xmlpath = '" . $xmlpath . "'";
-	echo $resumequery;
+	// echo $resumequery;
 	$resumeresult = mysql_query($resumequery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 	$errors = array();
 	while ($entry = mysql_fetch_array($resumeresult)){
@@ -179,21 +178,23 @@ function in_array_r($needle, $haystack, $strict = false) {
             return true;
         }
     }
-
     return false;
 }
 
 
-
+// ********************************************** 
+// THIS IS WHAT GETS RUN
+// ********************************************** 
 //setup smugmug connection
 //set smug url that we want to upload to
 $smugURL = $_SESSION['smugmugurl'];
-//echo $smugURL;
+
 // SMUGMUG caching            
-$smugvalues = getSmugApi($smugURL);//returns smug values for these images based on what instance they are in
-//var_dump($smugvalues);
+$smugvalues = getSmugApi($smugURL); //returns smug values for these images based on what instance they are in
+var_dump($smugvalues);
 $tokenarray = unserialize($smugvalues[0]['smug_token']);
 $cachevar = dirname(__FILE__) . 'smugcache';	
+
 // APC Cache Version
 $f = new phpSmug("APIKey={$smugvalues[0]['smug_api_key']}", "AppName=DFM Photo Gallery 1.0", "OAuthSecret={$smugvalues[0]['smug_secret']}", "APIVer=1.3.0");
 $cache_result = $f->enableCache("type=apc", "cache_dir={$cachevar}", "cache_expire=180" );
@@ -204,7 +205,14 @@ echo $categoryID;
 if (is_dir($dir)) {
     if ($dh = opendir($dir)) {
     		ob_start;
-        	while (($file = readdir($dh)) !== false) {
+            // ********************************************** 
+            // HERE WE:
+            // 1. Load each XML file,
+            // 2. and make sure we haven't already imported that file before,
+            // 3. and then we import it using the mcsmugnewalbum function.
+            // ********************************************** 
+        	while (($file = readdir($dh)) !== false) 
+            {
             $path = $dir . "/" . $file;
             if ($file == ".DS_Store" || $file == "." || $file == ".." || $file == "processed") { continue; }
             //echo "foldername: " . $file . "\n<br>";
@@ -212,10 +220,10 @@ if (is_dir($dir)) {
 			$xml = simplexml_load_file($path);
 			//var_dump($xml);
 			$albumsearchquery = "SELECT * FROM mcexport WHERE xmlpath = '" . $path . "'";
-			//echo $albumsearchquery;
 			$albumsearch = mysql_query($albumsearchquery)  or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 			$searchdebug = mysql_num_rows($albumsearch);
 			//echo $searchdebug;
+            
 			if ($searchdebug != 0){
 				//echo "PROGRESS<br>";
 				while ($entry = mysql_fetch_array($albumsearch)){
@@ -227,11 +235,13 @@ if (is_dir($dir)) {
 				}
 			}
 			else if ($searchdebug == 0){
+                // WE HAVEN'T TRIED THIS ALBUM YET. LET'S IMPORT IT.
 				//echo "maybe progress<br>";				
 				$theNewAlbum = mcsmugnewalbum($path, $xml, $categoryID, $f, $siteFileHandle, false);
 				$smugid = strval($theNewAlbum['id']);
 				$smugkey = $theNewAlbum['Key'];				
 			}
+
 			//echo "Log entry exists!<br>ID AND KEY:" . $smugid . "  " . $smugkey . "<br>";
 			if ($smugid == 0 || $smugkey == ""){
 				echo "NEW ALBUM FAILED. RETRYING.";
@@ -242,7 +252,7 @@ if (is_dir($dir)) {
 			 
 			//mcsmugcheckalbum($smugid, $smugkey, $xml, $f);
 			if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
-		}
+            }
         }
         closedir($dh);
     }
