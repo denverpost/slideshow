@@ -245,62 +245,69 @@ function in_array_r($needle, $haystack, $strict = false) {
 }
 
 
-// ********************************************** 
-// THIS IS WHAT USED TO GET RUN WHEN WE WERE IMPORTING MYCAPTURE GALLERIES
-// ********************************************** 
-if (is_dir($dir)) {
-    if ($dh = opendir($dir)) {
-    		ob_start;
-            // ********************************************** 
-            // HERE WE:
-            // 1. Load each XML file,
-            // 2. and make sure we haven't already imported that file before,
-            // 3. and then we import it using the mcsmugnewalbum function.
-            // ********************************************** 
-        	while (($file = readdir($dh)) !== false):
-                $path = $dir . "/" . $file;
-                if ($file == ".DS_Store" || $file == "." || $file == ".." || $file == "processed") { continue; }
-                //echo "foldername: " . $file . "\n<br>";
-                if (filetype($path) == "file"){
-                $xml = simplexml_load_file($path);
-                //var_dump($xml);
-                $albumsearchquery = "SELECT * FROM mcexport WHERE xmlpath = '" . $path . "'";
-                $albumsearch = mysql_query($albumsearchquery)  or die('query failed:'.mysql_error().'<br/>sql:'.$albumsearchquery.'<br/>');
-                $searchdebug = mysql_num_rows($albumsearch);
-                //echo $searchdebug;
-                
-                if ($searchdebug != 0){
-                    //echo "PROGRESS<br>";
-                    while ($entry = mysql_fetch_array($albumsearch)){
-                        if($entry['xmlpath'] == $path){
-                            $smugid = $entry['smugid'];
-                            $smugkey = $entry['smugkey'];
-                            $albumStatus = $entry['status'];
-                        }
-                    }
-                }
-                else if ($searchdebug == 0){
-                    // WE HAVEN'T TRIED THIS ALBUM YET. LET'S IMPORT IT.
-                    //echo "maybe progress<br>";				
-                    $theNewAlbum = mcsmugnewalbum($path, $xml, $categoryID, $f, $siteFileHandle, false);
-                    $smugid = strval($theNewAlbum['id']);
-                    $smugkey = $theNewAlbum['Key'];				
-                }
 
-                //echo "Log entry exists!<br>ID AND KEY:" . $smugid . "  " . $smugkey . "<br>";
-                if ($smugid == 0 || $smugkey == ""){
-                    echo "NEW ALBUM FAILED. RETRYING.";
-                    $theNewAlbum = mcsmugnewalbum($path, $xml, $categoryID, $f, $siteFileHandle, true);
-                    $smugid = strval($theNewAlbum['id']);
-                    $smugkey = $theNewAlbum['Key'];
-                }
-                 
-                //mcsmugcheckalbum($smugid, $smugkey, $xml, $f);
-                if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
-            endwhile;
-        }
-        closedir($dh);
-    }
+
+
+
+
+// ********************************************** 
+// THIS IS WHAT WE USED TO RUN WHEN WE WERE IMPORTING MYCAPTURE GALLERIES
+// ********************************************** 
+if (is_dir($dir) && $dh = opendir($dir)) 
+{
+    ob_start;
+    // ********************************************** 
+    // HERE WE:
+    // 1. Load each XML file,
+    // 2. and make sure we haven't already imported that file before,
+    // 3. and then we import it using the mcsmugnewalbum function.
+    // ********************************************** 
+    while (($file = readdir($dh)) !== false):
+        $path = $dir . "/" . $file;
+        if ($file == ".DS_Store" || $file == "." || $file == ".." || $file == "processed") { continue; }
+        //echo "foldername: " . $file . "\n<br>";
+        if (filetype($path) == "file"):
+            $xml = simplexml_load_file($path);
+            //var_dump($xml);
+            $albumsearchquery = "SELECT * FROM mcexport WHERE xmlpath = '" . $path . "'";
+            $albumsearch = mysql_query($albumsearchquery)  or die('query failed:'.mysql_error().'<br/>sql:'.$albumsearchquery.'<br/>');
+            $searchdebug = mysql_num_rows($albumsearch);
+            //echo $searchdebug;
+            
+            if ($searchdebug != 0)
+            {
+                //echo "PROGRESS<br>";
+                while ($entry = mysql_fetch_array($albumsearch)):
+                    if($entry['xmlpath'] == $path){
+                        $smugid = $entry['smugid'];
+                        $smugkey = $entry['smugkey'];
+                        $albumStatus = $entry['status'];
+                    }
+                endwhile;
+            }
+            elseif ($searchdebug == 0)
+            {
+                // WE HAVEN'T TRIED THIS ALBUM YET. LET'S IMPORT IT.
+                //echo "maybe progress<br>";				
+                $theNewAlbum = mcsmugnewalbum($path, $xml, $categoryID, $f, $siteFileHandle, false);
+                $smugid = strval($theNewAlbum['id']);
+                $smugkey = $theNewAlbum['Key'];				
+            }
+
+            //echo "Log entry exists!<br>ID AND KEY:" . $smugid . "  " . $smugkey . "<br>";
+            if ($smugid == 0 || $smugkey == "")
+            {
+                echo "NEW ALBUM FAILED. RETRYING.";
+                $theNewAlbum = mcsmugnewalbum($path, $xml, $categoryID, $f, $siteFileHandle, true);
+                $smugid = strval($theNewAlbum['id']);
+                $smugkey = $theNewAlbum['Key'];
+            }
+             
+            //mcsmugcheckalbum($smugid, $smugkey, $xml, $f);
+            if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
+        endif;
+    endwhile;
+    closedir($dh);
 }
 
 ?>
