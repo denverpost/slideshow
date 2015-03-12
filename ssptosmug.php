@@ -4,6 +4,7 @@ ASSUMPTIONS:
 1. There is XML of the slideshows you want to import, and that XML lives in a directory named SSPXML.
 2. Ugh does this script really need to be run via HTTP ugh no it doesn't
 */
+include("share_functions.php");
 if ( isset($_GET["SiteName"]) ):
     include( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
     $_SESSION['SiteName'] = $_GET["SiteName"];
@@ -23,7 +24,7 @@ set_time_limit(0);
 $username="root";
 $password="root";
 $database="wp_mc";
-$mysqli = mysqli_connect("localhost", $user, $password, $database);
+$mysqli = mysqli_connect(localhost, $user, $password, $database);
 
 /* Create tables sql:
 CREATE TABLE `sspexport` (
