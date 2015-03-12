@@ -48,11 +48,11 @@ function mcsmugcategory ($smugObj) {
 		}
 	}
 
-if(!isset($catID)){
-	$catID = $smugObj->categories_create("Name=MyCapture");
-}
-echo $catID["id"] . "<br><br><br>";
-return $catID["id"];
+    if(!isset($catID)){
+        $catID = $smugObj->categories_create("Name=MyCapture");
+    }
+    echo $catID["id"] . "<br><br><br>";
+    return $catID["id"];
 
 }
 
@@ -65,6 +65,7 @@ class ssptosmug
     function __construct()
     {
         // Authenticate with SSP
+        $this->authenticate_smug();
     }
 
     function authenticate_smug()
@@ -144,7 +145,9 @@ function mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $albumcatID, $smugObj, $albumLo
 
 //FUNCTION: Check Album
 function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
-    // What.does.this.function.even.do
+    // Check the number of images in the MC gallery,
+    // make sure that matches the # of images we've sent to Smug.
+
 	$resumequery = "SELECT * FROM mcexport WHERE xmlpath = '" . $xmlpath . "'";
 	// echo $resumequery;
 	$resumeresult = mysql_query($resumequery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
