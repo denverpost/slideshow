@@ -57,9 +57,40 @@ return $catID["id"];
 }
 
 
+class ssptosmug
+{
+    // Manage interactions between SSP and SmugMug galleries
+
+    function __construct()
+    {
+    }
+
+    function get_ssp_album()
+    {
+    }    
+
+    function get_ssp_image()
+    {
+    }
+
+    function create_smug_album()
+    {
+    }
+
+    function create_smug_image()
+    {
+    }
+}
 
 //FUNCTION: New Album
 function mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $albumcatID, $smugObj, $albumLog, $retry){
+    /*
+        Values that we need for a new album in smugmug:
+        * Title
+        * CategoryID
+        * # of images in the album
+        * 
+    */
 	$title = $mcXMLFile->channel->EVENT_TITLE;
 	echo "<h1>CATEGORY: " . $albumcatID . "</h1>";
 	$newAlbum = $smugObj->albums_create("Title=$title", "CategoryID=$albumcatID", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
@@ -68,7 +99,8 @@ function mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $albumcatID, $smugObj, $albumLo
 	$smugAlbumKey = $newAlbum['Key'];
 	$totalImages = count($mcXMLFile->channel->item);
 
-	if ($smugAlbumID == "" || $smugAlbumKey == ""){mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $smugObj, $albumLog);}
+	if ($smugAlbumID == "" || $smugAlbumKey == "") mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $smugObj, $albumLog);
+
 	if ($retry == false){
 		$processedquery = "INSERT INTO mcexport VALUES ('$mcXMLPath', '$smugAlbumID', '$smugAlbumKey' ,'$totalImages','0','NEW')";
 		echo $processedquery;
@@ -211,8 +243,7 @@ if (is_dir($dir)) {
             // 2. and make sure we haven't already imported that file before,
             // 3. and then we import it using the mcsmugnewalbum function.
             // ********************************************** 
-        	while (($file = readdir($dh)) !== false) 
-            {
+        	while (($file = readdir($dh)) !== false):
                 $path = $dir . "/" . $file;
                 if ($file == ".DS_Store" || $file == "." || $file == ".." || $file == "processed") { continue; }
                 //echo "foldername: " . $file . "\n<br>";
@@ -252,7 +283,7 @@ if (is_dir($dir)) {
                  
                 //mcsmugcheckalbum($smugid, $smugkey, $xml, $f);
                 if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
-            }
+            endwhile;
         }
         closedir($dh);
     }
