@@ -1,7 +1,12 @@
 <?php
+/*
+ASSUMPTIONS:
+1. There is XML of the slideshows you want to import, and that XML lives in a directory named SSPXML.
+2. Ugh does this script really need to be run via HTTP ugh no it doesn't
+*/
 include( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
     $_SESSION['SiteName'] = $_GET["SiteName"];
-    $_SESSION['MCFolder'] = $_GET["MCFolder"];
+    //$_SESSION['MCFolder'] = $_GET["MCFolder"];
     $_SESSION['smugmugurl'] = $_GET['smugmugurl'];
 set_time_limit(0);
 
@@ -20,7 +25,7 @@ $thispage = $_SERVER['REQUEST_URI'];
 $refreshtime = "30";
 header("Refresh: $refreshtime; url=$thispage");
 
-$dir = "/host/ChainRSSFeed/" . $_SESSION['MCFolder'];
+$dir = "/SSPXML/";
 //$dir = '/home/joe/Rss_BREF';
 
 //mysql vars
