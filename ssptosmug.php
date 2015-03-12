@@ -25,7 +25,7 @@ $thispage = $_SERVER['REQUEST_URI'];
 $refreshtime = "30";
 header("Refresh: $refreshtime; url=$thispage");
 
-$dir = "/SSPXML/";
+//$dir = "/SSPXML/";
 
 //mysql vars
 $username="root";
@@ -60,11 +60,33 @@ return $catID["id"];
 class ssptosmug
 {
     // Manage interactions between SSP and SmugMug galleries
+    var $f; // phpSmug object.
 
     function __construct()
     {
+        // Authenticate with SSP
     }
 
+    function authenticate_smug()
+    {
+        //setup smugmug connection
+        //set smug url that we want to upload to
+        $smugURL = $_SESSION['smugmugurl'];
+
+        // SMUGMUG caching            
+        $smugvalues = getSmugApi($smugURL); //returns smug values for these images based on what instance they are in
+        var_dump($smugvalues);
+        $tokenarray = unserialize($smugvalues[0]['smug_token']);
+        $cachevar = dirname(__FILE__) . 'smugcache';	
+
+        // APC Cache Version
+        $this->f = new phpSmug("APIKey={$smugvalues[0]['smug_api_key']}", "AppName=DFM Photo Gallery 1.0", "OAuthSecret={$smugvalues[0]['smug_secret']}", "APIVer=1.3.0");
+        $cache_result = $f->enableCache("type=apc", "cache_dir={$cachevar}", "cache_expire=180" );
+        $this->f->setToken( "id={$tokenarray['Token']['id']}", "Secret={$tokenarray['Token']['Secret']}" );
+        $categoryID = mcsmugcategory($this->f);
+        echo $categoryID;
+    }
+            
     function get_ssp_album()
     {
     }    
@@ -75,6 +97,11 @@ class ssptosmug
 
     function create_smug_album()
     {
+        $theNewAlbum = mcsmugnewalbum($path, $xml, $categoryID, $f, $siteFileHandle, false);
+        $smugid = strval($theNewAlbum['id']);
+        $smugkey = $theNewAlbum['Key'];				
+
+        if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
 
     function create_smug_image()
@@ -117,7 +144,7 @@ function mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $albumcatID, $smugObj, $albumLo
 
 //FUNCTION: Check Album
 function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
-
+    // What.does.this.function.even.do
 	$resumequery = "SELECT * FROM mcexport WHERE xmlpath = '" . $xmlpath . "'";
 	// echo $resumequery;
 	$resumeresult = mysql_query($resumequery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
@@ -200,7 +227,7 @@ echo $reportSubject . "<br>";
 var_dump($errors);
 //mail ($reportrecipients, $reportSubject, $errors[0]);
 
-		} 	
+} 	
 
 
 
@@ -215,25 +242,8 @@ function in_array_r($needle, $haystack, $strict = false) {
 
 
 // ********************************************** 
-// THIS IS WHAT GETS RUN
+// THIS IS WHAT USED TO GET RUN WHEN WE WERE IMPORTING MYCAPTURE GALLERIES
 // ********************************************** 
-//setup smugmug connection
-//set smug url that we want to upload to
-$smugURL = $_SESSION['smugmugurl'];
-
-// SMUGMUG caching            
-$smugvalues = getSmugApi($smugURL); //returns smug values for these images based on what instance they are in
-var_dump($smugvalues);
-$tokenarray = unserialize($smugvalues[0]['smug_token']);
-$cachevar = dirname(__FILE__) . 'smugcache';	
-
-// APC Cache Version
-$f = new phpSmug("APIKey={$smugvalues[0]['smug_api_key']}", "AppName=DFM Photo Gallery 1.0", "OAuthSecret={$smugvalues[0]['smug_secret']}", "APIVer=1.3.0");
-$cache_result = $f->enableCache("type=apc", "cache_dir={$cachevar}", "cache_expire=180" );
-//echo "<!-- CACHE RESULT: $cache_result -->\n";		
-$f->setToken( "id={$tokenarray['Token']['id']}", "Secret={$tokenarray['Token']['Secret']}" );
-$categoryID = mcsmugcategory($f);
-echo $categoryID;
 if (is_dir($dir)) {
     if ($dh = opendir($dir)) {
     		ob_start;
@@ -251,7 +261,7 @@ if (is_dir($dir)) {
                 $xml = simplexml_load_file($path);
                 //var_dump($xml);
                 $albumsearchquery = "SELECT * FROM mcexport WHERE xmlpath = '" . $path . "'";
-                $albumsearch = mysql_query($albumsearchquery)  or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
+                $albumsearch = mysql_query($albumsearchquery)  or die('query failed:'.mysql_error().'<br/>sql:'.$albumsearchquery.'<br/>');
                 $searchdebug = mysql_num_rows($albumsearch);
                 //echo $searchdebug;
                 
