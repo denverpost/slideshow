@@ -4,13 +4,27 @@ ASSUMPTIONS:
 1. There is XML of the slideshows you want to import, and that XML lives in a directory named SSPXML.
 2. Ugh does this script really need to be run via HTTP ugh no it doesn't
 */
-include( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
+if ( isset($_GET["SiteName"] ):
+    include( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
     $_SESSION['SiteName'] = $_GET["SiteName"];
     //$_SESSION['MCFolder'] = $_GET["MCFolder"];
     $_SESSION['smugmugurl'] = $_GET['smugmugurl'];
+else:
+    $_SESSION['SiteName'] = 'heyreverb';
+    $_SESSION['smugmugurl'] = 'http://heyreveb.smugmug.com';
+endif;
+
 set_time_limit(0);
 
-/* Create MCEXPORT table sql:
+/* Create tables sql:
+CREATE TABLE `sspexport` (
+`sspid` varchar( 255 ) NOT NULL ,
+`smugid` int( 11 ) NOT NULL ,
+`smugkey` varchar( 255 ) NOT NULL ,
+`totalphotos` int( 11 ) NOT NULL ,
+`currentphotos` int( 11 ) NOT NULL ,
+`status` varchar( 255 ) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 
 CREATE TABLE `mcexport` (
 `xmlpath` varchar( 255 ) NOT NULL ,
@@ -33,29 +47,6 @@ $password="root";
 $database="wordpress";
 mysql_connect(localhost,$username,$password);
 @mysql_select_db($database) or die( "Unable to select database");
-
-
-//FUNCTION: check category
-function mcsmugcategory ($smugObj) {
-	$smugcats = $smugObj->categories_get();
-	//var_dump($smugcats);
-	//Check if there is a mycapture category
-	foreach($smugcats as $item){
-		//echo $item["Name"];
-    		if (isset($item["Name"]) && $item["Name"] == "MyCapture"){
-    			echo "Mycapture!";
-			$catID = $item;
-		}
-	}
-
-    if(!isset($catID)){
-        $catID = $smugObj->categories_create("Name=MyCapture");
-    }
-    echo $catID["id"] . "<br><br><br>";
-    return $catID["id"];
-
-}
-
 
 class ssptosmug
 {
@@ -108,6 +99,27 @@ class ssptosmug
     function create_smug_image()
     {
     }
+}
+
+//FUNCTION: check category
+function mcsmugcategory ($smugObj) {
+	$smugcats = $smugObj->categories_get();
+	//var_dump($smugcats);
+	//Check if there is a mycapture category
+	foreach($smugcats as $item){
+		//echo $item["Name"];
+    		if (isset($item["Name"]) && $item["Name"] == "MyCapture"){
+    			echo "Mycapture!";
+			$catID = $item;
+		}
+	}
+
+    if(!isset($catID)){
+        $catID = $smugObj->categories_create("Name=MyCapture");
+    }
+    echo $catID["id"] . "<br><br><br>";
+    return $catID["id"];
+
 }
 
 //FUNCTION: New Album
