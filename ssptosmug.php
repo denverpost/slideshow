@@ -4,17 +4,26 @@ ASSUMPTIONS:
 1. There is XML of the slideshows you want to import, and that XML lives in a directory named SSPXML.
 2. Ugh does this script really need to be run via HTTP ugh no it doesn't
 */
-if ( isset($_GET["SiteName"] ):
+if ( isset($_GET["SiteName"]) ):
     include( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
     $_SESSION['SiteName'] = $_GET["SiteName"];
     //$_SESSION['MCFolder'] = $_GET["MCFolder"];
     $_SESSION['smugmugurl'] = $_GET['smugmugurl'];
+    $thispage = $_SERVER['REQUEST_URI'];
+    $refreshtime = "30";
+    header("Refresh: $refreshtime; url=$thispage");
+    //$dir = "/SSPXML/";
 else:
     $_SESSION['SiteName'] = 'heyreverb';
     $_SESSION['smugmugurl'] = 'http://heyreveb.smugmug.com';
 endif;
 
 set_time_limit(0);
+
+$username="root";
+$password="root";
+$database="wp_mc";
+$mysqli = mysqli_connect("localhost", $user, $password, $database);
 
 /* Create tables sql:
 CREATE TABLE `sspexport` (
@@ -26,18 +35,6 @@ CREATE TABLE `sspexport` (
 `status` varchar( 255 ) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 */
-$thispage = $_SERVER['REQUEST_URI'];
-$refreshtime = "30";
-header("Refresh: $refreshtime; url=$thispage");
-
-//$dir = "/SSPXML/";
-
-//mysql vars
-$username="root";
-$password="root";
-$database="wordpress";
-mysql_connect(localhost,$username,$password);
-@mysql_select_db($database) or die( "Unable to select database");
 
 class ssptosmug
 {
@@ -91,6 +88,7 @@ class ssptosmug
     {
     }
 }
+$ssptosmug = new ssptosmug();
 
 //FUNCTION: check category
 function mcsmugcategory ($smugObj) {
