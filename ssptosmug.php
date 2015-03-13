@@ -23,10 +23,6 @@ endif;
 
 set_time_limit(0);
 
-$user="root";
-$password="root";
-$database="wp_mc";
-$mysqli = mysqli_connect(localhost, $user, $password, $database);
 
 /* Create tables sql:
 CREATE TABLE `sspexport` (
@@ -46,10 +42,15 @@ class ssptosmug
     var $director; // SSP API object.
     var $ssp; // SSP data
     var $smug_category;
+    var $user="root";
+    var $password="root";
+    var $database="wp_mc";
+    var $mysqli;
 
     function __construct()
     {
         $this->smug_category = 0;
+        $this->mysqli = mysqli_connect(localhost, $this->user, $this->password, $this->database);
 
         // Authenticate with SSP
         $this->authenticate_ssp();
@@ -150,9 +151,9 @@ class ssptosmug
         $title = $album->name;
         $cat_id = $this->smug_category;
 
-        $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
-        $smugid = strval($smug_album['id']);
-        $smugkey = $smug_album['Key'];				
+        //$smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
+        //$smugid = strval($smug_album['id']);
+        //$smugkey = $smug_album['Key'];				
 
         if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
