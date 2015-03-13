@@ -174,24 +174,26 @@ class ssptosmug
         // Here we upload all the images to the gallery we have yet to upload.
         while ( $current_photo < $total_photos ):
             echo $ssp_album->contents[$current_photo]->original->url . "\n";
-            $this->create_smug_image($smug_id, $ssp_album->contents[$current_photo]->original->url);
+            $caption = $ssp_album->contents[$current_photo]->caption;
+            $this->create_smug_image($smug_id, $ssp_album->contents[$current_photo]->original->url, $caption);
             $current_photo += 1;
             $exists = True;
-            $this->log_album($ssp_album->id, $smug_id, $total_photos, $current_photos, 'INPROGRESS', $exists);
+            $this->log_album($ssp_album->id, $smug_id, $total_photos, $current_photo, 'INPROGRESS', $exists);
         endwhile;
+        $this->log_album($ssp_album->id, $smug_id, $total_photos, $current_photo, 'DONE', $exists);
         //if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
 
-    function create_smug_image($album_id, $image_path)
+    function create_smug_image($album_id, $image_path, $caption='')
     {
         // With the two required parameters, upload an image to a gallery.
         $image_type = 'File';
         if ( strpos($image_path, 'http') !== FALSE ) $image_type = 'URL';
 
         if ( $image_type == 'File' ):
-            $this->f->images_upload("AlbumID=$album_id", "$image_type=$image_path");
+            $this->f->images_upload("AlbumID=$album_id", "$image_type=$image_path", "Caption=$caption");
         elseif ( $image_type == 'URL' ):
-            $this->f->images_uploadFromURL("AlbumID=$album_id", "$image_type=$image_path");
+            $this->f->images_uploadFromURL("AlbumID=$album_id", "$image_type=$image_path", "Caption=$caption");
         endif;
 
         return True;
