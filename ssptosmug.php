@@ -133,7 +133,7 @@ class ssptosmug
         $this->smug_category = $category;
     }
 
-    function create_smug_album($album)
+    function create_smug_album($ssp_album)
     {
         /*
             Takes an SSP album object, loops through it creating the objects in smugmug as necessary.
@@ -148,23 +148,23 @@ class ssptosmug
             * CategoryID
             * # of images in the album
         */
-        $title = $album->name;
+        $title = $ssp_album->name;
         $cat_id = $this->smug_category;
-        $result = $this->check_album_log($album->id);
-        $total_photos = count($album->contents);
+        $result = $this->check_album_log($ssp_album->id);
+        $total_photos = count($ssp_album->contents);
 
         if ( $result->num_rows === 0 ):
             // NEW ALBUM YEA YEA YEA.
             //$smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
-            $this->log_smug_album($album->id, $total_photos, 0, 'NEW');
+            $smug_id = strval($smug_album['id']);
+        //$smugkey = $smug_album['Key'];				
+            $this->log_smug_album($ssp_album->id, $smug_id, $total_photos, 0, 'NEW');
             $current_photo = 0;
         else:
             // We're in the middle of this album upload, so we need to see which photo we're on.
             //function log_album_creation($album_id, $total_photos, $current_photo=0, $status='NEW', $exists = False, $ssp_id = 0)
             echo 'hi';           
         endif; 
-        //$smugid = strval($smug_album['id']);
-        //$smugkey = $smug_album['Key'];				
 
         //if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
@@ -184,7 +184,7 @@ class ssptosmug
         return True;
     }
 
-    function log_album_creation($album_id, $total_photos, $current_photo=0, $status='NEW', $exists = False, $ssp_id = 0)
+    function log_album_creation($ssp_id, $smug_id, $total_photos, $current_photo=0, $status='NEW', $exists = False)
     {
         // Create an entry in the sspexport database logging that we've created this album.
         // To do this we need to update / create a record with these values:
@@ -192,12 +192,12 @@ class ssptosmug
 
         //CREATE
         if ( $exists == False ):
-            $sql = "INSERT INTO sspexport VALUES ('$ssp_id', '$album_id', '' ,'$total_photos','$current_photo','$status')";
+            $sql = "INSERT INTO sspexport VALUES ('$ssp_id', '$smug_id', '' ,'$total_photos','$current_photo','$status')";
         elseif ( $exists == True ):
             $sql = "UPDATE sspexport SET 
                 currentphotos='" . $current_photo . "',
                 status='" . $status . "'
-            WHERE smugid='" . $album_id. "'
+            WHERE smugid='" . $smug_id. "'
             LIMIT 1";
         endif;
         $this->mysqli->query($sql) or die('query failed:' . $this->mysqli->error() . "\nsql:" . $sql);
