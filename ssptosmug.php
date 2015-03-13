@@ -98,17 +98,22 @@ class ssptosmug
 
     function get_ssp_albums($type='all', $id=0)
     {
-        // Wrapper method for SSP's album methods
+        // Wrapper method for SSP's album methods. Returns false if nothing happens.
         if ( $type == 'all' ):
             $this->ssp['albums'] = $this->director->album->all(array('list_only' => true));
+            return $this->ssp['albums'];
         elseif ( $type == 'one' && $id > 0 ):
             $album = $this->director->album->get($id);
-            var_dump($album);
+            return $album;
         endif;
+
+        return false;
     }    
 
     function get_ssp_image()
     {
+        // Takes a SSP album's image array,
+        // downloads the image locally.
     }
 
     function create_smug_album()
@@ -129,10 +134,27 @@ class ssptosmug
     function create_smug_image()
     {
     }
+
+    function log_album_creation()
+    {
+        // Create an entry in the sspexport database logging that we've created this album.
+    }
+
+    function log_image_upload()
+    {
+    }
+
+    function check_album_log()
+    {
+        // Check the database, see if we've uploaded this album already.
+        // Also make sure that the number of images in the album are the #
+        // of images that we've uploaded.
+    }
 }
 $ssptosmug = new ssptosmug();
 //$ssptosmug->get_ssp_galleries('one', 24943);
-$ssptosmug->get_ssp_albums('one', 450352);
+//$albums = $ssptosmug->get_ssp_albums();
+$album = $ssptosmug->get_ssp_albums('one', 450352);
 
 //FUNCTION: check category
 function mcsmugcategory ($smugObj) {
