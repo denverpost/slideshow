@@ -151,13 +151,17 @@ class ssptosmug
         $title = $album->name;
         $cat_id = $this->smug_category;
         $result = $this->check_album_log($album->id);
+        $total_photos = count($album->contents);
 
         if ( $result->num_rows === 0 ):
             // NEW ALBUM YEA YEA YEA.
-            $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
-            $this->log_smug_album(0, 
+            //$smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
+            $this->log_smug_album($album->id, $total_photos, 0, 'NEW');
+            $current_photo = 0;
         else:
-            
+            // We're in the middle of this album upload, so we need to see which photo we're on.
+            //function log_album_creation($album_id, $total_photos, $current_photo=0, $status='NEW', $exists = False, $ssp_id = 0)
+            echo 'hi';           
         endif; 
         //$smugid = strval($smug_album['id']);
         //$smugkey = $smug_album['Key'];				
@@ -180,7 +184,7 @@ class ssptosmug
         return True;
     }
 
-    function log_album_creation($ssp_id = 0, $album_id, $total_photos, $current_photos=0, $status='NEW', $exists = False)
+    function log_album_creation($album_id, $total_photos, $current_photo=0, $status='NEW', $exists = False, $ssp_id = 0)
     {
         // Create an entry in the sspexport database logging that we've created this album.
         // To do this we need to update / create a record with these values:
@@ -188,19 +192,15 @@ class ssptosmug
 
         //CREATE
         if ( $exists == False ):
-            $sql = "INSERT INTO sspexport VALUES ('$ssp_id', '$album_id', '' ,'$total_photos','$current_photos','$status')";
-            $this->mysqli->query($sql) or die('query failed:' . $this->mysqli->error() . "\nsql:" . $sql);
+            $sql = "INSERT INTO sspexport VALUES ('$ssp_id', '$album_id', '' ,'$total_photos','$current_photo','$status')";
         elseif ( $exists == True ):
             $sql = "UPDATE sspexport SET 
-                smugid='" . $album_id . "' , 
-                smugkey='',
-                totalphotos='" . $total_photos . "',
-                currentphotos='" . $current_photos . "',
+                currentphotos='" . $current_photo . "',
                 status='" . $status . "'
             WHERE smugid='" . $album_id. "'
             LIMIT 1";
-            $this->mysqli->query($sql) or die('query failed:' . $this->mysqli->error() . "\nsql:" . $sql);
         endif;
+        $this->mysqli->query($sql) or die('query failed:' . $this->mysqli->error() . "\nsql:" . $sql);
     }
 
     function log_image_upload()
