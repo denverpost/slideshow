@@ -155,10 +155,10 @@ class ssptosmug
 
         if ( $result->num_rows === 0 ):
             // NEW ALBUM YEA YEA YEA.
-            //$smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
+            $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
             $smug_id = strval($smug_album['id']);
-        //$smugkey = $smug_album['Key'];				
-            $this->log_smug_album($ssp_album->id, $smug_id, $total_photos, 0, 'NEW');
+            //$smugkey = $smug_album['Key'];				
+            $this->log_album($ssp_album->id, $smug_id, $total_photos, 0, 'NEW');
             $current_photo = 0;
         else:
             // We're in the middle of this album upload, so we need to see which photo we're on.
@@ -173,7 +173,11 @@ class ssptosmug
 
         // Here we upload all the images to the gallery we have yet to upload.
         while ( $current_photo < $total_photos ):
+            echo $ssp_album->contents[$current_photo]->original->url . "\n";
             $this->create_smug_image($smug_id, $ssp_album->contents[$current_photo]->original->url);
+            $current_photo += 1;
+            $exists = True;
+            $this->log_album($ssp_album->id, $smug_id, $total_photos, $current_photos, 'INPROGRESS', $exists);
         endwhile;
         //if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
@@ -182,7 +186,7 @@ class ssptosmug
     {
         // With the two required parameters, upload an image to a gallery.
         $image_type = 'File';
-        if ( strpos('http', $image_path) !== FALSE ) $image_type = 'URL';
+        if ( strpos($image_path, 'http') !== FALSE ) $image_type = 'URL';
 
         if ( $image_type == 'File' ):
             $this->f->images_upload("AlbumID=$album_id", "$image_type=$image_path");
@@ -193,20 +197,20 @@ class ssptosmug
         return True;
     }
 
-    function log_album_creation($ssp_id, $smug_id, $total_photos, $current_photo=0, $status='NEW', $exists = False)
+    function log_album($ssp_id, $smug_id, $total_photos, $current_photo=0, $status='NEW', $exists = False)
     {
         // Create an entry in the sspexport database logging that we've created this album.
         // To do this we need to update / create a record with these values:
         //   `sspid` `smugid` `smugkey` `totalphotos` `currentphotos` `status` 
 
         //CREATE
-        if ( $exists == False ):
+        if ( $exists === False ):
             $sql = "INSERT INTO sspexport VALUES ('$ssp_id', '$smug_id', '' ,'$total_photos','$current_photo','$status')";
         elseif ( $exists == True ):
             $sql = "UPDATE sspexport SET 
                 currentphotos='" . $current_photo . "',
                 status='" . $status . "'
-            WHERE smugid='" . $smug_id. "'
+            WHERE sspid='" . $ssp_id. "'
             LIMIT 1";
         endif;
         $this->mysqli->query($sql) or die('query failed:' . $this->mysqli->error() . "\nsql:" . $sql);
