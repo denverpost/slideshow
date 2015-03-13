@@ -162,10 +162,19 @@ class ssptosmug
             $current_photo = 0;
         else:
             // We're in the middle of this album upload, so we need to see which photo we're on.
-            //function log_album_creation($album_id, $total_photos, $current_photo=0, $status='NEW', $exists = False, $ssp_id = 0)
-            echo 'hi';           
+            // That means we need to take the $result result and turn it into vars.
+            // $result will result in these vars:
+            //   `sspid` `smugid` `smugkey` `totalphotos` `currentphotos` `status` 
+            $row = $result->fetch_assoc();
+            var_dump($row);
+            $current_photo = $row['currentphotos'];
+            $smug_id = $row['smugid'];
         endif; 
 
+        // Here we upload all the images to the gallery we have yet to upload.
+        while ( $current_photo < $total_photos ):
+            $this->create_smug_image($smug_id, $ssp_album->contents[$current_photo]->original->url);
+        endwhile;
         //if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
 
