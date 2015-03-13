@@ -23,7 +23,7 @@ endif;
 
 set_time_limit(0);
 
-$username="root";
+$user="root";
 $password="root";
 $database="wp_mc";
 $mysqli = mysqli_connect(localhost, $user, $password, $database);
@@ -43,7 +43,8 @@ class ssptosmug
 {
     // Manage interactions between SSP and SmugMug galleries
     var $f; // phpSmug object.
-    var $ssp; // SSP object.
+    var $director; // SSP API object.
+    var $ssp; // SSP data
 
     function __construct()
     {
@@ -76,8 +77,33 @@ class ssptosmug
         $categoryID = mcsmugcategory($this->f);
     }
             
-    function get_ssp_album()
+    function get_ssp_galleries($type='all', $id=0)
     {
+        // Takes two parameters: $type, which defaults to 'all' but can be 'one',
+        // and $id, which should have a non-zero value if you're passing $type 'one'.
+        // Example use:
+        // get_ssp_galleries(); // see a list of the galleries available and their id's. Figure out the id you want, then:
+        // get_ssp_galleries('one', the-id-you-want);
+        if ( $type == 'all' ):
+            $galleries = $this->director->gallery->all();
+            foreach ( $galleries as $gallery ):
+                echo $gallery->name . ": " . $gallery->id . "\n";
+            endforeach;
+        elseif ( $type == 'one' ):
+            $this->ssp->gallery = $this->director->gallery->get(int($id));
+        endif;
+        
+    }    
+
+    function get_ssp_albums($type='all')
+    {
+        // Wrapper method for SSP's album methods
+        if ( $type == 'all' ):
+            $galleries = $this->director->gallery->all();
+            foreach ( $galleries as $gallery ):
+                echo $gallery->name . ": " . $gallery->id . "\n";
+            endforeach;
+        endif;
     }    
 
     function get_ssp_image()
@@ -104,6 +130,7 @@ class ssptosmug
     }
 }
 $ssptosmug = new ssptosmug();
+$ssptosmug->get_ssp_galleries('one', 24943);
 
 //FUNCTION: check category
 function mcsmugcategory ($smugObj) {
@@ -146,13 +173,13 @@ function mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $albumcatID, $smugObj, $albumLo
 	if ($smugAlbumID == "" || $smugAlbumKey == "") mcsmugnewalbum ($mcXMLPath, $mcXMLFile, $smugObj, $albumLog);
 
 	if ($retry == false){
-		$processedquery = "INSERT INTO mcexport VALUES ('$mcXMLPath', '$smugAlbumID', '$smugAlbumKey' ,'$totalImages','0','NEW')";
+		$processedquery = "INSERT INTO sspexport VALUES ('$mcXMLPath', '$smugAlbumID', '$smugAlbumKey' ,'$totalImages','0','NEW')";
 		echo $processedquery;
 		mysql_query($processedquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 		return $newAlbum;
 	}
 	else {
-		$processedquery = "UPDATE mcexport SET smugid='" . $smugAlbumID . "' , smugkey='" . $smugAlbumKey . "' WHERE xmlpath='" . $mcXMLPath  . "' totalphotos='" . $totalimages . "' currentphotos='0' status='NEW' WHERE xmlpath='" . $mcXMLPath  . "'";
+		$processedquery = "UPDATE sspexport SET smugid='" . $smugAlbumID . "' , smugkey='" . $smugAlbumKey . "' WHERE xmlpath='" . $mcXMLPath  . "' totalphotos='" . $totalimages . "' currentphotos='0' status='NEW' WHERE xmlpath='" . $mcXMLPath  . "'";
 		echo $processedquery;
 		mysql_query($processedquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 		return $newAlbum;
@@ -164,7 +191,7 @@ function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
     // Check the number of images in the MC gallery,
     // make sure that matches the # of images we've sent to Smug.
 
-	$resumequery = "SELECT * FROM mcexport WHERE xmlpath = '" . $xmlpath . "'";
+	$resumequery = "SELECT * FROM sspexport WHERE xmlpath = '" . $xmlpath . "'";
 	// echo $resumequery;
 	$resumeresult = mysql_query($resumequery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 	$errors = array();
@@ -198,7 +225,7 @@ function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
 
 		else{
 			$i = $albums['ImageCount'];
-			$statusquery = "UPDATE mcexport SET status = 'IN_PROG' WHERE xmlpath='" . $xmlpath  . "'";
+			$statusquery = "UPDATE sspexport SET status = 'IN_PROG' WHERE xmlpath='" . $xmlpath  . "'";
 			echo $statusquery;
 			mysql_query($statusquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 			while ($i != count($MCXML->channel->item)){
@@ -210,7 +237,7 @@ function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
 				var_dump($imageupload);		
 				echo "<br>";			
 				$i ++;
-				$counterquery = "UPDATE mcexport SET currentphotos='" . $i . "' WHERE xmlpath='" . $xmlpath  . "'";
+				$counterquery = "UPDATE sspexport SET currentphotos='" . $i . "' WHERE xmlpath='" . $xmlpath  . "'";
 				mysql_query($counterquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 				flush();
 			ob_flush();
@@ -219,11 +246,11 @@ function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
 
 			$albums = $smugObj->albums_getInfo("AlbumID={$checkID}", "AlbumKey={$checkKey}", "Strict=1");
 			if ($albums['ImageCount'] == $i){
-				$statusquery = "UPDATE mcexport SET status = 'DONE' WHERE xmlpath='" . $xmlpath  . "'";
+				$statusquery = "UPDATE sspexport SET status = 'DONE' WHERE xmlpath='" . $xmlpath  . "'";
 				mysql_query($statusquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 			}
 			else{
-				$statusquery = "UPDATE mcexport SET status = 'ERROR' WHERE xmlpath='" . $xmlpath  . "'";
+				$statusquery = "UPDATE sspexport SET status = 'ERROR' WHERE xmlpath='" . $xmlpath  . "'";
 				mysql_query($statusquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 				$newError = "The album " .  $albums['Title'] . "(" . $albums['URL'] . ") contains" . $albums['ImageCount'] . " images, but there are " . count($MCXML->channel->item) . " images in the MyCapture XML. Check to see if the images still exist in MyCapture./n";
 				array_push($errors, $newError);
@@ -236,7 +263,7 @@ function mcsmugcheckalbum ($xmlpath, $MCXML, $smugObj){
 
 	else {
 			echo "<h1> Since the number of images matches no update needed.</h1><br>";
-			$statusquery = "UPDATE mcexport SET status = 'DONE' WHERE xmlpath='" . $xmlpath  . "'";
+			$statusquery = "UPDATE sspexport SET status = 'DONE' WHERE xmlpath='" . $xmlpath  . "'";
 			mysql_query($statusquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
 			}
 
@@ -284,7 +311,7 @@ if (is_dir($dir) && $dh = opendir($dir))
         if (filetype($path) == "file"):
             $xml = simplexml_load_file($path);
             //var_dump($xml);
-            $albumsearchquery = "SELECT * FROM mcexport WHERE xmlpath = '" . $path . "'";
+            $albumsearchquery = "SELECT * FROM sspexport WHERE xmlpath = '" . $path . "'";
             $albumsearch = mysql_query($albumsearchquery)  or die('query failed:'.mysql_error().'<br/>sql:'.$albumsearchquery.'<br/>');
             $searchdebug = mysql_num_rows($albumsearch);
             //echo $searchdebug;
