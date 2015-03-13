@@ -5,6 +5,8 @@ ASSUMPTIONS:
 2. Ugh does this script really need to be run via HTTP ugh no it doesn't
 */
 include("share_functions.php");
+include("classes/DirectorPHP.php");
+
 if ( isset($_GET["SiteName"]) ):
     include( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
     $_SESSION['SiteName'] = $_GET["SiteName"];
@@ -41,11 +43,18 @@ class ssptosmug
 {
     // Manage interactions between SSP and SmugMug galleries
     var $f; // phpSmug object.
+    var $ssp; // SSP object.
 
     function __construct()
     {
         // Authenticate with SSP
+        $this->authenticate_ssp();
         $this->authenticate_smug();
+    }
+
+    function authenticate_ssp()
+    {
+        $this->director = new Director(getenv('SSP_API_KEY'), getenv('SSP_API_PATH'));
     }
 
     function authenticate_smug()
@@ -65,7 +74,6 @@ class ssptosmug
         $cache_result = $this->f->enableCache("type=apc", "cache_dir={$cachevar}", "cache_expire=180" );
         $this->f->setToken( "id={$tokenarray['Token']['id']}", "Secret={$tokenarray['Token']['Secret']}" );
         $categoryID = mcsmugcategory($this->f);
-        echo $categoryID;
     }
             
     function get_ssp_album()
@@ -78,7 +86,13 @@ class ssptosmug
 
     function create_smug_album()
     {
-        $theNewAlbum = mcsmugnewalbum($path, $xml, $categoryID, $f, $siteFileHandle, false);
+        /*
+            Values that we need for a new album in smugmug:
+            * Title
+            * CategoryID
+            * # of images in the album
+        */
+        $theNewAlbum = mcsmugnewalbum($path, $ssp_data, $categoryID, $this->f, $siteFileHandle, false);
         $smugid = strval($theNewAlbum['id']);
         $smugkey = $theNewAlbum['Key'];				
 
@@ -107,7 +121,7 @@ function mcsmugcategory ($smugObj) {
     if(!isset($catID)){
         $catID = $smugObj->categories_create("Name=MyCapture");
     }
-    echo $catID["id"] . "<br><br><br>";
+    echo $catID["id"] . "\n";
     return $catID["id"];
 
 }
