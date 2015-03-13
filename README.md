@@ -2,10 +2,13 @@
 Exports Slideshow Pro (SSP) slideshows into SmugMug
 
 ## Setup
-This script requires to environment variables (in case it's not obvious, the two below are fake):
+This script requires these environment variables:
 ```
-  export API_KEY='hosted-sdfasdfasdfasdfasdfasd'
-  export API_PATH='something.slideshowpro.com'
+export SSP_API_KEY=''
+export SSP_API_PATH=''
+export SMUG_API_KEY=''
+export SMUG_SECRET=''
+export SMUG_TOKEN=''
 ```
 
 ### Things That Will Cause Errors Unless You Address Them Head-On

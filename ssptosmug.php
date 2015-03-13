@@ -62,7 +62,7 @@ class ssptosmug
 
         // APC Cache Version
         $this->f = new phpSmug("APIKey={$smugvalues[0]['smug_api_key']}", "AppName=DFM Photo Gallery 1.0", "OAuthSecret={$smugvalues[0]['smug_secret']}", "APIVer=1.3.0");
-        $cache_result = $f->enableCache("type=apc", "cache_dir={$cachevar}", "cache_expire=180" );
+        $cache_result = $this->f->enableCache("type=apc", "cache_dir={$cachevar}", "cache_expire=180" );
         $this->f->setToken( "id={$tokenarray['Token']['id']}", "Secret={$tokenarray['Token']['Secret']}" );
         $categoryID = mcsmugcategory($this->f);
         echo $categoryID;

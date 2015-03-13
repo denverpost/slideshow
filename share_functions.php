@@ -8,11 +8,11 @@
 
 /* Place custom code below this line. */
 //smugmug api class
-include_once( plugin_dir_path( __FILE__ ) . '/includes/phpSmug.php');
-include_once( plugin_dir_path( __FILE__ ) . '/includes/phpSmugAPCcache.php');
+include_once( dirname( __FILE__ ) . '/includes/phpSmug.php');
+include_once( dirname( __FILE__ ) . '/includes/phpSmugAPCcache.php');
 
 //Need this plugin for the site to work. Needs to be activated for the relevant DB to be created. 
-require_once( WP_PLUGIN_DIR . '/dfm-wp-data/dfm-wp-data.php');
+//require_once( WP_PLUGIN_DIR . '/dfm-wp-data/dfm-wp-data.php');
 
 
 function setSSPcodes( $api ) {
@@ -28,9 +28,14 @@ function setSSPcodes( $api ) {
 // get a galleries smug mug api key information
 function getSmugApi($smugdata){
         $getTheHost = parse_url($smugdata);
-        //var_dump($getTheHost["host"]);
-        $dataForThisHost = DFMDataForWP::retrieveRowFromMasterData('smug_url', $getTheHost["host"]); // Row of all data for row that contains this smugmug host
-        //var_dump($dataForThisHost);
+        //$dataForThisHost = DFMDataForWP::retrieveRowFromMasterData('smug_url', $getTheHost["host"]); // Row of all data for row that contains this smugmug host
+        // WE'RE HARDCODING THIS BECAUSE WE ONLY NEED IT FOR HEY REVERB.
+        $dataForThisHost = array(
+            'smug_api_key' => getenv('SMUG_API_KEY'),
+            'smug_secret' => getenv('SMUG_SECRET'),
+            //'smug_token' => unserialize(getenv('SMUG_TOKEN'))
+            'smug_token' => getenv('SMUG_TOKEN')
+        );
         $smugvalues = array("smug_api_key" => $dataForThisHost["smug_api_key"], "smug_secret" => $dataForThisHost["smug_secret"], "smug_token" => $dataForThisHost["smug_token"]);
         return array ($smugvalues);
 }
@@ -138,22 +143,7 @@ function createCanonical($url){
     return '<link rel="canonical" href="' . $url  . '" />';
 }
 
-//Add Spreed RSS feed template
-function create_my_customfeed() {
-    load_template( TEMPLATEPATH . '/feed-spreed.php'); 
-}
-add_action('do_feed_spreed', 'create_my_customfeed', 10, 0);
 
-
-// Add custom button to html editor to insert [insertSmugmug] code
-// Add buttons to html editor, remember this is JS you are loading so you must do it properly with wp_enqueue_script
-function mc_quicktags($hook) {
-    if( $hook != 'post.php' && $hook != 'post-new.php' )//only return when it's a new post or editing an existing post.
-        return;
-    wp_register_script( 'quicktag-script', plugins_url( '/includes/qtags.js', __FILE__ ), array(), null, true );  
-    wp_enqueue_script( 'quicktag-script' );
-}
-add_action( 'admin_enqueue_scripts', 'mc_quicktags' );
 
 /* Function to output JSON for embedded galleries */
 function outputEmbedJson($post_object, $js_object_name){
