@@ -45,9 +45,12 @@ class ssptosmug
     var $f; // phpSmug object.
     var $director; // SSP API object.
     var $ssp; // SSP data
+    var $smug_category;
 
     function __construct()
     {
+        $this->smug_category = 0;
+
         // Authenticate with SSP
         $this->authenticate_ssp();
         $this->authenticate_smug();
@@ -60,13 +63,10 @@ class ssptosmug
 
     function authenticate_smug()
     {
-        //setup smugmug connection
-        //set smug url that we want to upload to
         $smugURL = $_SESSION['smugmugurl'];
 
         // SMUGMUG caching            
         $smugvalues = getSmugApi($smugURL); //returns smug values for these images based on what instance they are in
-        var_dump($smugvalues);
         $tokenarray = unserialize($smugvalues[0]['smug_token']);
         $cachevar = dirname(__FILE__) . 'smugcache';	
 
@@ -74,7 +74,6 @@ class ssptosmug
         $this->f = new phpSmug("APIKey={$smugvalues[0]['smug_api_key']}", "AppName=DFM Photo Gallery 1.0", "OAuthSecret={$smugvalues[0]['smug_secret']}", "APIVer=1.3.0");
         $cache_result = $this->f->enableCache("type=apc", "cache_dir={$cachevar}", "cache_expire=180" );
         $this->f->setToken( "id={$tokenarray['Token']['id']}", "Secret={$tokenarray['Token']['Secret']}" );
-        $categoryID = mcsmugcategory($this->f);
     }
             
     function get_ssp_galleries($type='all', $id=0)
@@ -116,28 +115,76 @@ class ssptosmug
         // downloads the image locally.
     }
 
-    function create_smug_album()
+    function get_smug_categories()
+    {
+        // Gosh this method needs work.
+        $cats = $this->f->categories_get();
+        foreach ( $cats as $item ):
+            echo $item['Name'] . ': ' . $item['id'] . "\n";
+        endforeach;
+
+        return $cats;
+    }
+
+    function set_smug_category($category)
+    {
+        // Setter method for smug category
+        $this->smug_category = $category;
+    }
+
+    function create_smug_album($album)
     {
         /*
+            Takes an SSP album object, loops through it creating the objects in smugmug as necessary.
+            1. Check if album already exists.
+            2. Create album if not.
+            3. If the album already exists, see if we have any more images to upload.
+            4. Upload images as necessary
+            5. Log all the actions.
+
             Values that we need for a new album in smugmug:
             * Title
             * CategoryID
             * # of images in the album
         */
-        $theNewAlbum = mcsmugnewalbum($path, $ssp_data, $categoryID, $this->f, $siteFileHandle, false);
-        $smugid = strval($theNewAlbum['id']);
-        $smugkey = $theNewAlbum['Key'];				
+        $title = $album->name;
+        $cat_id = $this->smug_category;
+
+        $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
+        $smugid = strval($smug_album['id']);
+        $smugkey = $smug_album['Key'];				
 
         if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
 
-    function create_smug_image()
+    function create_smug_image($album_id, $image_path)
     {
+        // With the two required parameters, upload an image to a gallery.
+        $image_type = 'File';
+        if ( strpos('http', $image_path) !== FALSE ) $image_type = 'URL';
+
+        if ( $image_type == 'File' ):
+            $this->f->images_upload("AlbumID=$album_id", "$image_type=$image_path");
+        elseif ( $image_type == 'URL' ):
+            $this->f->images_uploadFromURL("AlbumID=$album_id", "$image_type=$image_path");
+        endif;
+
+        return True;
     }
 
     function log_album_creation()
     {
         // Create an entry in the sspexport database logging that we've created this album.
+        //CREATE
+		$processedquery = "INSERT INTO sspexport VALUES ('$mcXMLPath', '$smugAlbumID', '$smugAlbumKey' ,'$totalImages','0','NEW')";
+		echo $processedquery;
+		mysql_query($processedquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
+		return $newAlbum;
+        //UPDATE
+		$processedquery = "UPDATE sspexport SET smugid='" . $smugAlbumID . "' , smugkey='" . $smugAlbumKey . "' WHERE xmlpath='" . $mcXMLPath  . "' totalphotos='" . $totalimages . "' currentphotos='0' status='NEW' WHERE xmlpath='" . $mcXMLPath  . "'";
+		echo $processedquery;
+		mysql_query($processedquery) or die('query failed:'.mysql_error().'<br/>sql:'.$sql.'<br/>');
+		return $newAlbum;
     }
 
     function log_image_upload()
@@ -154,7 +201,10 @@ class ssptosmug
 $ssptosmug = new ssptosmug();
 //$ssptosmug->get_ssp_galleries('one', 24943);
 //$albums = $ssptosmug->get_ssp_albums();
+$reverb_category_is_0 = 0;
 $album = $ssptosmug->get_ssp_albums('one', 450352);
+$created = $ssptosmug->create_smug_album($album);
+//$ssptosmug->get_smug_categories();
 
 //FUNCTION: check category
 function mcsmugcategory ($smugObj) {
