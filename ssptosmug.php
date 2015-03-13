@@ -90,19 +90,20 @@ class ssptosmug
                 echo $gallery->name . ": " . $gallery->id . "\n";
             endforeach;
         elseif ( $type == 'one' ):
-            $this->ssp->gallery = $this->director->gallery->get(int($id));
+            echo $id;
+            $this->ssp['gallery'] = $this->director->gallery->get($id);
         endif;
         
     }    
 
-    function get_ssp_albums($type='all')
+    function get_ssp_albums($type='all', $id=0)
     {
         // Wrapper method for SSP's album methods
         if ( $type == 'all' ):
-            $galleries = $this->director->gallery->all();
-            foreach ( $galleries as $gallery ):
-                echo $gallery->name . ": " . $gallery->id . "\n";
-            endforeach;
+            $this->ssp['albums'] = $this->director->album->all(array('list_only' => true));
+        elseif ( $type == 'one' && $id > 0 ):
+            $album = $this->director->album->get($id);
+            var_dump($album);
         endif;
     }    
 
@@ -130,7 +131,8 @@ class ssptosmug
     }
 }
 $ssptosmug = new ssptosmug();
-$ssptosmug->get_ssp_galleries('one', 24943);
+//$ssptosmug->get_ssp_galleries('one', 24943);
+$ssptosmug->get_ssp_albums('one', 450352);
 
 //FUNCTION: check category
 function mcsmugcategory ($smugObj) {
