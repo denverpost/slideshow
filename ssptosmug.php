@@ -157,8 +157,8 @@ class ssptosmug
             // NEW ALBUM YEA YEA YEA.
             $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
             $smug_id = strval($smug_album['id']);
-            //$smugkey = $smug_album['Key'];				
-            $this->log_album($ssp_album->id, $smug_id, $total_photos, 0, 'NEW');
+            $smug_key = $smug_album['Key'];				
+            $this->log_album($ssp_album->id, $smug_id, $smug_key, $total_photos, 0, 'NEW');
             $current_photo = 0;
         else:
             // We're in the middle of this album upload, so we need to see which photo we're on.
@@ -178,9 +178,9 @@ class ssptosmug
             $this->create_smug_image($smug_id, $ssp_album->contents[$current_photo]->original->url, $caption);
             $current_photo += 1;
             $exists = True;
-            $this->log_album($ssp_album->id, $smug_id, $total_photos, $current_photo, 'INPROGRESS', $exists);
+            $this->log_album($ssp_album->id, $smug_id, '', $total_photos, $current_photo, 'INPROGRESS', $exists);
         endwhile;
-        $this->log_album($ssp_album->id, $smug_id, $total_photos, $current_photo, 'DONE', $exists);
+        $this->log_album($ssp_album->id, $smug_id, '', $total_photos, $current_photo, 'DONE', $exists);
         //if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
 
@@ -199,7 +199,7 @@ class ssptosmug
         return True;
     }
 
-    function log_album($ssp_id, $smug_id, $total_photos, $current_photo=0, $status='NEW', $exists = False)
+    function log_album($ssp_id, $smug_id, $smug_key, $total_photos, $current_photo=0, $status='NEW', $exists = False)
     {
         // Create an entry in the sspexport database logging that we've created this album.
         // To do this we need to update / create a record with these values:
@@ -207,7 +207,7 @@ class ssptosmug
 
         //CREATE
         if ( $exists === False ):
-            $sql = "INSERT INTO sspexport VALUES ('$ssp_id', '$smug_id', '' ,'$total_photos','$current_photo','$status')";
+            $sql = "INSERT INTO sspexport VALUES ('$ssp_id', '$smug_id', '$smug_key','$total_photos','$current_photo','$status')";
         elseif ( $exists == True ):
             $sql = "UPDATE sspexport SET 
                 currentphotos='" . $current_photo . "',
