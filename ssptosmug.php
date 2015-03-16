@@ -180,7 +180,7 @@ class ssptosmug
             $exists = True;
             $this->log_album($ssp_album->id, $smug_id, '', $total_photos, $current_photo, 'INPROGRESS', $exists);
         endwhile;
-        $this->log_album($ssp_album->id, $smug_id, '', $total_photos, $current_photo, 'DONE', $exists);
+        $this->log_album($ssp_album->id, $smug_id, '', $total_photos, $current_photo, 'DONE', True);
         //if ($albumStatus != "DONE" && $albumStatus != "ERROR"){mcsmugcheckalbum($path, $xml, $f);}
     }
 
@@ -214,12 +214,10 @@ class ssptosmug
                 status='" . $status . "'
             WHERE sspid='" . $ssp_id. "'
             LIMIT 1";
+        else:
+            echo "EXISTS: " . $exists;
         endif;
-        $this->mysqli->query($sql) or die('query failed:' . $this->mysqli->error() . "\nsql:" . $sql);
-    }
-
-    function log_image_upload()
-    {
+        $this->mysqli->query($sql) or die('query failed:' . $this->mysqli->error . "\nsql:" . $sql);
     }
 
     function check_album_log($album_id)
@@ -234,10 +232,12 @@ class ssptosmug
 }
 $ssptosmug = new ssptosmug();
 //$ssptosmug->get_ssp_galleries('one', 24943);
-//$albums = $ssptosmug->get_ssp_albums();
+$albums = $ssptosmug->get_ssp_albums();
 $reverb_category_is_0 = 0;
-$album = $ssptosmug->get_ssp_albums('one', 450352);
-$created = $ssptosmug->create_smug_album($album);
+foreach ( $albums as $album ):
+    $created = $ssptosmug->create_smug_album($album);
+endforeach;
+//$album = $ssptosmug->get_ssp_albums('one', 450352);
 //$ssptosmug->get_smug_categories();
 
 //FUNCTION: check category
