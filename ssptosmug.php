@@ -100,8 +100,9 @@ class ssptosmug
     {
         // Wrapper method for SSP's album methods. Returns false if nothing happens.
         if ( $type == 'all' ):
-            $this->ssp['albums'] = $this->director->album->all(array('list_only' => true));
-            return $this->ssp['albums'];
+            $albums = $this->director->album->all(array('list_only' => true));
+            $this->ssp['albums'] = $albums;
+            return $albums;
         elseif ( $type == 'one' && $id > 0 ):
             $album = $this->director->album->get($id);
             return $album;
@@ -133,7 +134,7 @@ class ssptosmug
         $this->smug_category = $category;
     }
 
-    function create_smug_album($ssp_album)
+    function create_smug_album($ssp_album_id)
     {
         /*
             Takes an SSP album object, loops through it creating the objects in smugmug as necessary.
@@ -148,12 +149,14 @@ class ssptosmug
             * CategoryID
             * # of images in the album
         */
+        // Get the full details of the album here:
+        $ssp_album = $this->get_ssp_albums('one', $ssp_album_id);
         $title = $ssp_album->name;
         $cat_id = $this->smug_category;
-        $result = $this->check_album_log($ssp_album->id);
+        $result = $this->check_album_log($ssp_album_id);
         $total_photos = count($ssp_album->contents);
 
-        if ( $result->num_rows === 0 ):
+        if ( $result->num_rows == 0 ):
             // NEW ALBUM YEA YEA YEA.
             $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
             $smug_id = strval($smug_album['id']);
@@ -166,7 +169,6 @@ class ssptosmug
             // $result will result in these vars:
             //   `sspid` `smugid` `smugkey` `totalphotos` `currentphotos` `status` 
             $row = $result->fetch_assoc();
-            var_dump($row);
             $current_photo = $row['currentphotos'];
             $smug_id = $row['smugid'];
         endif; 
@@ -225,7 +227,7 @@ class ssptosmug
         // Check the database, see if we've uploaded this album already.
         // Also make sure that the number of images in the album are the #
         // of images that we've uploaded.
-        $sql = "SELECT * FROM sspexport WHERE smugid = $album_id LIMIT 1";
+        $sql = "SELECT * FROM sspexport WHERE sspid = $album_id LIMIT 1";
         $result = $this->mysqli->query($sql);
         return $result;
     }
@@ -235,7 +237,7 @@ $ssptosmug = new ssptosmug();
 $albums = $ssptosmug->get_ssp_albums();
 $reverb_category_is_0 = 0;
 foreach ( $albums as $album ):
-    $created = $ssptosmug->create_smug_album($album);
+    $created = $ssptosmug->create_smug_album($album->id);
 endforeach;
 //$album = $ssptosmug->get_ssp_albums('one', 450352);
 //$ssptosmug->get_smug_categories();
