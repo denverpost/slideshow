@@ -22,6 +22,7 @@ else:
     $_SESSION['smugmugurl'] = 'http://heyreverb.smugmug.com';
 endif;
 
+$album_count = 0;
 set_time_limit(0);
 
 
@@ -177,7 +178,7 @@ class ssptosmug
 
         // Here we upload all the images to the gallery we have yet to upload.
         while ( $current_photo < $total_photos ):
-            echo $ssp_album->contents[$current_photo]->original->url . "\n";
+            //echo $ssp_album->contents[$current_photo]->original->url . "\n";
             $caption = $ssp_album->contents[$current_photo]->caption;
             $this->create_smug_image($smug_id, $ssp_album->contents[$current_photo]->original->url, $caption);
             $current_photo += 1;
@@ -239,6 +240,7 @@ $ssptosmug = new ssptosmug();
 $albums = $ssptosmug->get_ssp_albums();
 $reverb_category_is_0 = 0;
 foreach ( $albums as $album ):
+    $album_count += 1; echo "ALBUMS UPLOADED: " . $album_count . "\n";
     $created = $ssptosmug->create_smug_album($album->id);
 endforeach;
 //$album = $ssptosmug->get_ssp_albums('one', 450352);
