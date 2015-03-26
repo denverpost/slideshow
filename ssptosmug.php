@@ -6,6 +6,7 @@ ASSUMPTIONS:
 */
 include("share_functions.php");
 include("classes/DirectorPHP.php");
+date_default_timezone_set('America/Denver');
 
 if ( isset($_GET["SiteName"]) ):
     include( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php');
@@ -158,7 +159,7 @@ class ssptosmug
 
         if ( $result->num_rows == 0 ):
             // NEW ALBUM YEA YEA YEA.
-            echo date('m/d/Y h:i:s a', time());
+            echo date('m/d/Y h:i:s a', time()) . "\n";
             $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
             $smug_id = strval($smug_album['id']);
             $smug_key = $smug_album['Key'];				
