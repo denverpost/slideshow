@@ -240,7 +240,8 @@ $ssptosmug = new ssptosmug();
 $albums = $ssptosmug->get_ssp_albums();
 $reverb_category_is_0 = 0;
 foreach ( $albums as $album ):
-    $album_count += 1; echo "ALBUMS UPLOADED: " . $album_count . "\n";
+    $album_count += 1; 
+    if ( $album_count > 1000 ) echo "ALBUMS UPLOADED: " . $album_count . "\n"; //***HARD-CODED
     $created = $ssptosmug->create_smug_album($album->id);
 endforeach;
 //$album = $ssptosmug->get_ssp_albums('one', 450352);
