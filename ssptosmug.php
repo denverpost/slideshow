@@ -239,10 +239,13 @@ $ssptosmug = new ssptosmug();
 //$ssptosmug->get_ssp_galleries('one', 24943);
 $albums = $ssptosmug->get_ssp_albums();
 $reverb_category_is_0 = 0;
+$current_album = intval(trim(file_get_contents("album_count"))) - 1;
 foreach ( $albums as $album ):
     $album_count += 1; 
-    if ( $album_count > 1000 ) echo "ALBUMS UPLOADED: " . $album_count . "\n"; //***HARD-CODED
+    if ( $album_count < $current_album ) continue;
+    echo "ALBUMS UPLOADED: " . $album_count . "\n"; 
     $created = $ssptosmug->create_smug_album($album->id);
+    file_put_contents("album_count", $album_count);
 endforeach;
 //$album = $ssptosmug->get_ssp_albums('one', 450352);
 //$ssptosmug->get_smug_categories();
