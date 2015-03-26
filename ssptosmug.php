@@ -18,7 +18,7 @@ if ( isset($_GET["SiteName"]) ):
     //$dir = "/SSPXML/";
 else:
     $_SESSION['SiteName'] = 'heyreverb';
-    $_SESSION['smugmugurl'] = 'http://heyreveb.smugmug.com';
+    $_SESSION['smugmugurl'] = 'http://heyreverb.smugmug.com';
 endif;
 
 set_time_limit(0);
@@ -158,6 +158,7 @@ class ssptosmug
 
         if ( $result->num_rows == 0 ):
             // NEW ALBUM YEA YEA YEA.
+            echo date('m/d/Y h:i:s a', time());
             $smug_album = $this->f->albums_create("Title=$title", "CategoryID=$cat_id", "Protected=true", "Printable=true", "Public=true", "Larges=true", "Originals=false", "X2Larges=false", "X3Larges=false", "XLarges=false", "SmugSearchable=true");
             $smug_id = strval($smug_album['id']);
             $smug_key = $smug_album['Key'];				
