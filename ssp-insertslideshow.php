@@ -41,7 +41,7 @@ function sspx_init() {
                 ), $atts));
                 $album_id = explode("=", $xml);
                 /*---------------Start Director Setup ------------------------*/
-            # Include DirectorAPI class file
+                # Include DirectorAPI class file
                 # and create a new instance of the class
                 # Be sure to have entered your API key and path in the DirectorPHP.php file.
 
