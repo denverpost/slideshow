@@ -1,4 +1,5 @@
-$ssplookup = ("110874" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48260923&AlbumKey=DR5tTr",
+<?php
+$ssplookup = array("110874" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48260923&AlbumKey=DR5tTr",
     "110875" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48306343&AlbumKey=JkJrZC",
     "110876" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48306278&AlbumKey=fMQ6Sg",
     "112581" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48270001&AlbumKey=5bPqWq",
@@ -506,7 +507,7 @@ $ssplookup = ("110874" => "http://heyreverb.smugmug.com/gallery/settings.mg?Albu
     "193167" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48219322&AlbumKey=pBLmKt",
     "193259" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48235909&AlbumKey=L23vNh",
     "193627" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48267659&AlbumKey=Q6rc9r",
-    "193945" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48252537&AlbumKey=rWSMGw";
+    "193945" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48252537&AlbumKey=rWSMGw",
     "194068" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48191102&AlbumKey=shfnLK",
     "194179" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48267163&AlbumKey=F374qv",
     "194818" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48246159&AlbumKey=j4RPrS",
@@ -1015,7 +1016,7 @@ $ssplookup = ("110874" => "http://heyreverb.smugmug.com/gallery/settings.mg?Albu
     "258622" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48251752&AlbumKey=Rt58Gv",
     "258623" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48252265&AlbumKey=5GpQFn",
     "258725" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48251516&AlbumKey=Hsn7mB",
-    "258956" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48306059&AlbumKey=589cvF";
+    "258956" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48306059&AlbumKey=589cvF",
     "258957" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48242189&AlbumKey=mHL5Zk",
     "258969" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48198200&AlbumKey=vSNwTr",
     "258970" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48253965&AlbumKey=NzV94W",
@@ -1524,7 +1525,7 @@ $ssplookup = ("110874" => "http://heyreverb.smugmug.com/gallery/settings.mg?Albu
     "334853" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48207229&AlbumKey=jQ2KDk",
     "335072" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48250915&AlbumKey=KWtbFC",
     "335284" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48254457&AlbumKey=g43cf9",
-    "335285" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266144&AlbumKey=GggfMN";
+    "335285" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266144&AlbumKey=GggfMN",
     "335290" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48186150&AlbumKey=4VTj6C",
     "335291" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48243892&AlbumKey=bPsLNJ",
     "335464" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48190694&AlbumKey=fzbdWF",
@@ -2033,7 +2034,7 @@ $ssplookup = ("110874" => "http://heyreverb.smugmug.com/gallery/settings.mg?Albu
     "399227" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48270978&AlbumKey=KxgQGc",
     "399255" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48185454&AlbumKey=sRMzzn",
     "399258" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48268812&AlbumKey=hbnpjf",
-    "399551" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266266&AlbumKey=FGLX2w";
+    "399551" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266266&AlbumKey=FGLX2w",
     "399691" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48261242&AlbumKey=b6mkbK",
     "399701" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266470&AlbumKey=9PRR4L",
     "399726" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48243495&AlbumKey=rwKKzv",
@@ -2542,7 +2543,7 @@ $ssplookup = ("110874" => "http://heyreverb.smugmug.com/gallery/settings.mg?Albu
     "443760" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48246661&AlbumKey=8wvP4V",
     "444063" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266283&AlbumKey=8qF9S3",
     "444067" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48219351&AlbumKey=8rKJ39",
-    "444072" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266733&AlbumKey=z2BWWd";
+    "444072" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266733&AlbumKey=z2BWWd",
     "444126" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48264319&AlbumKey=xD7VLV",
     "444165" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266753&AlbumKey=pZwX9b",
     "444169" => "http://heyreverb.smugmug.com/gallery/settings.mg?AlbumID=48266309&AlbumKey=HfS85N",
